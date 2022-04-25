@@ -2,40 +2,20 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProEventos.Domain;
+using ProEventos.Persistence.Contextos;
+using ProEventos.Persistence.Contratos;
 
 namespace ProEventos.Persistence
 {
-    public class ProEventosPersistence : IProEventosPersistence
+    public class EventoPersist : IEventoPersist
     {
         private readonly ProEventosContext _context;
-        public ProEventosPersistence(ProEventosContext context)
+        public EventoPersist(ProEventosContext context)
         {
             this._context = context;
 
         }
-        public void Add<T>(T entity) where T : class
-        {
-            _context.Add(entity);
-        }
-        public void Update<T>(T entity) where T : class
-        {
-            _context.Update(entity);
-        }
-
-        public void Delete<T>(T entity) where T : class
-        {
-            _context.Remove(entity);
-        }
-
-        public void DeleteRange<T>(T[] entityArray) where T : class
-        {
-            _context.RemoveRange(entityArray);
-        }
-        public async Task<bool> SaveChangesAsync()
-        {
-            return (await _context.SaveChangesAsync()) > 0;
-        }
-
+ 
         public async Task<Evento[]> GetAllEventosAsync(bool includePalestrantes = false)
         {
             IQueryable<Evento> query = _context.Eventos
@@ -72,7 +52,7 @@ namespace ProEventos.Persistence
 
             return await query.ToArrayAsync();
         }
-        public async Task<Evento> GetEventoByIdAsync(int EventoId, bool includePalestrantes = false)
+        public async Task<Evento> GetEventoByIdAsync(int eventoId, bool includePalestrantes = false)
         {
             IQueryable<Evento> query = _context.Eventos
                 .Include(e => e.Lotes)
@@ -86,25 +66,9 @@ namespace ProEventos.Persistence
             }
 
             query = query.OrderBy(e => e.Id)
-                         .Where(e => e.Id == EventoId);
+                         .Where(e => e.Id == eventoId);
 
             return await query.FirstOrDefaultAsync();
-        }
-
-        public Task<Palestrante[]> GetAllPalestrantesAsync(bool includeEventos)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public Task<Palestrante[]> GetAllPalestrantesByNomeAsync(string Nome, bool includeEventos)
-        {
-            throw new System.NotImplementedException();
-        }
-
-
-        public Task<Palestrante> GetPalestranteByIdAsync(int PalestranteId, bool includeEventos)
-        {
-            throw new System.NotImplementedException();
         }
 
     }
