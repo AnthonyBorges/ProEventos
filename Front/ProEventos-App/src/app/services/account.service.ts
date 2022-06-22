@@ -1,13 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { User } from '@app/models/identity/User';
-import { environment } from '@environments/environment';
+import { HttpClient } from '@angular/common/http';
 import { Observable, ReplaySubject } from 'rxjs';
+import { environment } from '@environments/environment';
+import { User } from '@app/models/identity/User';
 import { map, take } from 'rxjs/operators';
+import { UserUpdate } from '../models/identity/UserUpdate';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class AccountService {
   private currentUserSource = new ReplaySubject<User>(1);
   public currentUser$ = this.currentUserSource.asObservable();
@@ -25,6 +24,20 @@ export class AccountService {
         }
       })
     );
+  }
+
+  getUser(): Observable<UserUpdate> {
+    return this.http.get<UserUpdate>(this.baseUrl + 'getUser').pipe(take(1));
+  }
+
+  updateUser(model: UserUpdate): Observable<void> {
+    return this.http.put<UserUpdate>(this.baseUrl + 'updateUser', model).pipe(
+      take(1),
+      map((user: UserUpdate) => {
+          this.setCurrentUser(user);
+        }
+      )
+    )
   }
 
   public register(model: any): Observable<void> {
@@ -49,5 +62,4 @@ export class AccountService {
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSource.next(user);
   }
-
 }

@@ -6,9 +6,9 @@ import {
   HttpInterceptor
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { User } from '../models/identity/User';
+import { AccountService } from '../services/account.service';
 import { take } from 'rxjs/operators';
-import { User } from '@app/models/identity/User';
-import { AccountService } from '@app/services/account.service';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -30,7 +30,6 @@ export class JwtInterceptor implements HttpInterceptor {
         );
       }
     });
-
 
     return next.handle(request);
   }

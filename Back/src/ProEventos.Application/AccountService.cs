@@ -24,13 +24,13 @@ namespace ProEventos.Application
                               IMapper mapper,
                               IUserPersist userPersist)
         {
+            _userManager = userManager;
+            _signInManager = signInManager;
             _mapper = mapper;
             _userPersist = userPersist;
-            _signInManager = signInManager;
-            _userManager = userManager;
-            
         }
-       public async Task<SignInResult> CheckUserPasswordAsync(UserUpdateDto userUpdateDto, string password)
+
+        public async Task<SignInResult> CheckUserPasswordAsync(UserUpdateDto userUpdateDto, string password)
         {
             try
             {
@@ -52,7 +52,7 @@ namespace ProEventos.Application
                 var user = _mapper.Map<User>(userDto);
                 var result = await _userManager.CreateAsync(user, userDto.Password);
 
-                if (result.Succeeded) 
+                if (result.Succeeded)
                 {
                     var userToReturn = _mapper.Map<UserUpdateDto>(user);
                     return userToReturn;
@@ -62,8 +62,7 @@ namespace ProEventos.Application
             }
             catch (System.Exception ex)
             {
-                
-                throw new Exception($"Erro ao tentar criar usuário. Erro: {ex.Message}");
+                throw new Exception($"Erro ao tentar Criar Usuário. Erro: {ex.Message}");
             }
         }
 
@@ -79,8 +78,7 @@ namespace ProEventos.Application
             }
             catch (System.Exception ex)
             {
-                
-                throw new Exception($"Erro ao tentar pegar usuário por username. Erro: {ex.Message}");
+                throw new Exception($"Erro ao tentar pegar Usuário por Username. Erro: {ex.Message}");
             }
         }
 
@@ -91,10 +89,14 @@ namespace ProEventos.Application
                 var user = await _userPersist.GetUserByUserNameAsync(userUpdateDto.UserName);
                 if (user == null) return null;
 
+                userUpdateDto.Id = user.Id;
+
                 _mapper.Map(userUpdateDto, user);
 
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, userUpdateDto.Password);
+                if (userUpdateDto.Password != null) {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    await _userManager.ResetPasswordAsync(user, token, userUpdateDto.Password);
+                }
 
                 _userPersist.Update<User>(user);
 
@@ -109,7 +111,6 @@ namespace ProEventos.Application
             }
             catch (System.Exception ex)
             {
-                
                 throw new Exception($"Erro ao tentar atualizar usuário. Erro: {ex.Message}");
             }
         }
@@ -123,8 +124,7 @@ namespace ProEventos.Application
             }
             catch (System.Exception ex)
             {
-                
-                throw new Exception($"Erro ao verificar se o usuário existe. Erro: {ex.Message}");
+                throw new Exception($"Erro ao verificar se usuário existe. Erro: {ex.Message}");
             }
         }
     }

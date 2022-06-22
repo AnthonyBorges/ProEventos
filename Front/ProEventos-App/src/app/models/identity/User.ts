@@ -5,5 +5,4 @@ export class User {
   primeiroNome: string;
   ultimoNome: string;
   token: string;
-
 }
